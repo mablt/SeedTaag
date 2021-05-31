@@ -152,15 +152,32 @@ def visualise(Metabo, react, graph):
     elements2 = defcsc(Metabo, react, dag_node)
     elements3 = defdag(dag_node, dag_edge)
 
+    # Load extra layouts
+    cyto.load_extra_layouts()
+
     app.layout = html.Div(style=styles['container'], children=[
-        dcc.Dropdown(
-            id='dropdown-update-elements',
-            value='grid',
-            clearable=False,
-            options=[
-                {'label': name.capitalize(), 'value': name}
-                for name in ['simple_graph', 'scc_graph', 'dag']
-            ]),
+        html.Label(
+            ["Graph types selection", dcc.Dropdown(
+                id='dropdown-update-elements',
+                value='simple_graph',
+                clearable=False,
+                options=[
+                    {'label': name.capitalize(), 'value': name}
+                    for name in ['simple_graph', 'scc_graph', 'dag']
+                ])
+            ]
+        ),
+        html.Label(
+            ["Display methods selection", dcc.Dropdown(
+                id='dropdown-layout',
+                value='cose-bilkent',
+                clearable=False,
+                options=[
+                    {'label': name.capitalize(), 'value': name}
+                    for name in ['cose-bilkent', 'cola', 'euler', 'spread', 'dagre', 'klay']
+                ])
+            ]
+        ),
         html.Div(className='cy-container', style=styles['cy-container'], children=[
             cyto.Cytoscape(
                 id='cytoscape-responsive',
@@ -199,12 +216,23 @@ def visualise(Metabo, react, graph):
         :returns: List of the graph representation
         :rtype: list
         """
-        print(value)
         if value == 'simple_graph' or value == 'grid':
             return elements1
         if value == 'scc_graph':
             return elements2
         if value == 'dag':
             return elements3
+
+    @app.callback(Output('cytoscape-responsive', 'layout'),
+                  Input('dropdown-layout', 'value'))
+    def update_display_methods(value):
+        """Uptdate the graph between three types of visualisation
+
+        :param value: Name of the selected graph
+        :type value: string
+        :returns: Dictionnary contains layout name
+        :rtype: dict
+        """
+        return {'name':value}
 
     app.run_server()
