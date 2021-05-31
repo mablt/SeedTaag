@@ -27,7 +27,7 @@ def main():
                         required=False,
                         action='store_true',
                         help='display graph on page web at :http://127.0.0.1:8050/\n ')
-    exgroup = parser.add_mutually_exclusive_group(required=True)
+    exgroup = parser.add_mutually_exclusive_group(required=False)
     exgroup.add_argument('--all',
                          action='store_true',
                          help='displaying all the topologie result\n ')
