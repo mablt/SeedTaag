@@ -55,7 +55,7 @@ def defcsc(Metabos, Reactions, S):
     count = 0
     for scc in S:
         count += 1
-        lelabel = "strongly connected components "+str(count)
+        lelabel = "SCC "+str(count)
         elements.append({'data': {'id': scc, 'labelid': lelabel}})
         for key in S[scc]['groupe']:
             properties = Metabos[key].properties()
@@ -91,7 +91,7 @@ def defdag(node, edge):
     count = 0
     for key in node:
         count += 1
-        lelabel = "strongly connected components "+str(count)
+        lelabel = "SCC "+str(count)
         elements.append({'data': {'id': key, 'labelid': lelabel,
                                   'group': node[key]['groupe'], 'lenght': node[key]['lenght']}})
     for key in edge:
