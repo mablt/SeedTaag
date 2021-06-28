@@ -1,3 +1,4 @@
+import dash
 from dash import Dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -145,7 +146,6 @@ def visualise(Metabo, react, graph):
         }}
 
     dag_node = tag.find_dag_node(graph)
-    print(dag_node)
     dag_edge = tag.find_dag_edge(Metabo, react, dag_node)
     app = Dash()
     elements1 = defelements(Metabo, react)
@@ -170,7 +170,7 @@ def visualise(Metabo, react, graph):
         html.Label(
             ["Display methods selection", dcc.Dropdown(
                 id='dropdown-layout',
-                value='cose-bilkent',
+                value='spread',
                 clearable=False,
                 options=[
                     {'label': name.capitalize(), 'value': name}
@@ -178,6 +178,13 @@ def visualise(Metabo, react, graph):
                 ])
             ]
         ),
+        html.Div(children=[
+            html.Label("Export as "),
+            html.Button('PNG', id='btn-png'),
+            html.Button('SVG', id='btn-svg'),
+            html.Button('JPG', id='btn-jpg'),
+            html.Div(id='image-text')
+        ]),
         html.Div(className='cy-container', style=styles['cy-container'], children=[
             cyto.Cytoscape(
                 id='cytoscape-responsive',
@@ -209,7 +216,7 @@ def visualise(Metabo, react, graph):
     @app.callback(Output('cytoscape-responsive', 'elements'),
                   Input('dropdown-update-elements', 'value'))
     def update_layout(value):
-        """Uptdate the graph between three types of visualisation
+        """Update the graph between three types of visualisation
 
         :param value: Name of the selected graph
         :type value: string
@@ -226,13 +233,43 @@ def visualise(Metabo, react, graph):
     @app.callback(Output('cytoscape-responsive', 'layout'),
                   Input('dropdown-layout', 'value'))
     def update_display_methods(value):
-        """Uptdate the graph between three types of visualisation
+        """Update the graph between the types of layout
 
-        :param value: Name of the selected graph
+        :param value: Name of the selected layout
         :type value: string
         :returns: Dictionnary contains layout name
         :rtype: dict
         """
         return {'name':value}
+
+
+    @app.callback(Output('cytoscape-responsive', 'generateImage'),
+                Input('btn-png', 'n_clicks'),
+                Input('btn-svg', 'n_clicks'),
+                Input('btn-jpg', 'n_clicks'))
+    def export_button(btn_png, btn_svg, btn_jpg):
+        """Manage exportation of the graph when export buttons are clicked
+        
+        :param btn_png: PNG button
+        :type btn_png: boolean
+        :param btn_svg: SVG button
+        :type btn_svg: boolean
+        :param btn_jpg: JPG button
+        :type btn_jpg: boolean
+        :returns: Dictionnary contains export data
+        :rtype: dict
+        """
+        ftype = None
+        action = "download"
+        ctx = dash.callback_context
+        if ctx.triggered:
+            input_id = ctx.triggered[0]["prop_id"].split(".")[0]
+            ftype = input_id.split("-")[-1]
+
+        return {
+            'type': ftype,
+            'action': action
+        }
+
 
     app.run_server()
